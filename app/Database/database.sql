@@ -1,24 +1,80 @@
-CREATE DATABASE codeigniter;
-USE codeigniter;
-
-CREATE TABLE etudiant (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nom VARCHAR(255) NOT NULL,
-    prenom VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL
+CREATE TABLE departements (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nom VARCHAR(100) NOT NULL,
+    description TEXT
 );
 
-CREATE TABLE produit (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nom VARCHAR(255) NOT NULL,
-    prix DECIMAL(10, 2) NOT NULL
+CREATE TABLE types_conge (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    libelle VARCHAR(100) NOT NULL,
+    jours_annuels INTEGER NOT NULL DEFAULT 0,
+    deductible INTEGER NOT NULL DEFAULT 0
 );
 
+CREATE TABLE statuts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    libelle VARCHAR(50) NOT NULL UNIQUE
+);
 
-INSERT INTO etudiant (nom, prenom, email) VALUES ('Doe', 'John', 'john.doe@example.com');
-INSERT INTO etudiant (nom, prenom, email) VALUES ('Smith', 'Jane', 'jane.smith@example.com');
-INSERT INTO etudiant (nom, prenom, email) VALUES ('Johnson', 'Bob', 'bob.johnson@example.com');
+CREATE TABLE employes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nom VARCHAR(100) NOT NULL,
+    prenom VARCHAR(100) NOT NULL,
+    email VARCHAR(150) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    role VARCHAR(50) NOT NULL,
+    departement_id INTEGER,
+    date_embauche DATE NOT NULL,
+    actif INTEGER NOT NULL DEFAULT 1,
 
-INSERT INTO produit (nom, prix) VALUES ('Produit 1', 19.99);
-INSERT INTO produit (nom, prix) VALUES ('Produit 2', 29.99);
-INSERT INTO produit (nom, prix) VALUES ('Produit 3', 39.99);
+    FOREIGN KEY (departement_id)
+        REFERENCES departements(id)
+);
+
+CREATE TABLE soldes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    employe_id INTEGER NOT NULL,
+    type_conge_id INTEGER NOT NULL,
+    annee INTEGER NOT NULL,
+    jours_attribues INTEGER NOT NULL DEFAULT 0,
+    jours_pris INTEGER NOT NULL DEFAULT 0,
+
+    FOREIGN KEY (employe_id)
+        REFERENCES employes(id),
+
+    FOREIGN KEY (type_conge_id)
+        REFERENCES types_conge(id)
+);
+
+CREATE TABLE conges (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    employe_id INTEGER NOT NULL,
+    type_conge_id INTEGER NOT NULL,
+    date_debut DATE NOT NULL,
+    date_fin DATE NOT NULL,
+    nb_jours INTEGER NOT NULL,
+    motif TEXT,
+    statut_id INTEGER NOT NULL,
+    commentaire_rh TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    traite_par INTEGER,
+
+
+    FOREIGN KEY (employe_id)
+        REFERENCES employes(id),
+
+    FOREIGN KEY (type_conge_id)
+        REFERENCES types_conge(id),
+
+    FOREIGN KEY (statut_id)
+        REFERENCES statuts(id),
+
+    FOREIGN KEY (traite_par)
+        REFERENCES employes(id)
+);
+
+INSERT INTO statuts(libelle) VALUES
+('en_attente'),
+('approuve'),
+('refuse'),
+('annule');
